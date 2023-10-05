@@ -46,6 +46,20 @@
       color: #337ab7 !important;
     }
   </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.157.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.157.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script>
+    let pause = false
+  </script>
+
 </head>
 
 <body class="bg-slate-200">
@@ -53,15 +67,16 @@
   <div class="grid grid-cols-1 md:grid-cols-2 text-center">
 
     <div>
-      <div class="bg-custom fixed md:h-screen md:w-1/2 bg-slate-800 items-center md:flex max-[767px]:w-full">
+      <div class="intro bg-custom fixed md:h-screen md:w-1/2 bg-slate-800 items-center max-[767px]:w-full">
+        <div class="cube inline-block" onmouseover="pause=true" onmouseleave="pause=false"></div>
         <div class="w-full flex">
-          <img class="ml-4 mt-1 mb-1 rounded-full w-20 h-20" src="https://www.didierkrux.com/assets/img/didierkrux.jpg" />
-          <h1 class="w-full text-3xl p-2 text-white self-center">gm, this is Didier Krux, let's connect!</h1>
+          <!-- <img class="ml-4 mt-1 mb-1 rounded-full w-20 h-20" src="/DK.png" /> -->
+          <h1 class="w-full text-3xl p-2 text-white self-center mb-10">gm, this is Didier Krux, let's connect!</h1>
         </div>
       </div>
     </div>
 
-    <div class="mt-20 mb-4">
+    <div class="infos mb-4">
       <ul class="text-2xl">
         <li>
           <h2>👨‍💻 Portfolio</h2>
@@ -119,6 +134,84 @@
     </div>
 
   </div>
+
+  <script type="module">
+
+    import * as THREE from 'three';
+
+    let camera, scene, renderer;
+    let mesh;
+
+    const size = 500
+
+    init();
+    animate();
+
+
+    function init() {
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+      camera.position.z = 2;
+      camera.aspect = 1;
+      camera.updateProjectionMatrix();
+
+      scene = new THREE.Scene();
+
+      const texture = new THREE.TextureLoader().load('/DK.png');
+      texture.colorSpace = THREE.SRGBColorSpace;
+
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshBasicMaterial({ map: texture, alpha: true });
+
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      var cube = document.getElementsByClassName("cube")
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio);
+      const iw = window.innerWidth
+      const maxSize = iw < 1000 && iw > 768 ? iw / 2 : iw < size ? iw / 3 * 2 : size
+      renderer.setSize(maxSize, maxSize);
+      renderer.setClearColor(0x000000, 0);
+      cube[0].appendChild(renderer.domElement);
+
+      onWindowResize()
+      window.addEventListener('resize', onWindowResize);
+
+    }
+
+
+
+    function onWindowResize() {
+
+      const iw = window.innerWidth
+
+      document.querySelector('.infos').style.marginTop = iw < 768 ? document.querySelector('.intro').clientHeight + 'px' : '0px'
+
+      camera.aspect = 1;
+      camera.updateProjectionMatrix();
+
+      const maxSize = iw < 1000 && iw > 768 ? iw / 2 : iw < size ? iw / 3 * 2 : size
+      renderer.setSize(maxSize, maxSize);
+
+    }
+
+    function animate() {
+
+      requestAnimationFrame(animate);
+
+      if (!pause) {
+
+        mesh.rotation.x += 0.0025;
+        mesh.rotation.y += 0.005;
+
+        renderer.render(scene, camera);
+      }
+
+
+    }
+
+  </script>
 
 </body>
 
